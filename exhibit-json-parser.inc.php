@@ -23,7 +23,7 @@ function exhibit_parse_bundle($bundle_name, $exhibit_types, $pretty_print = FALS
   // wd logger
   $time_ago =  time() - $start_time ; // log time
   // TODO refactor log msg see 51, 58
-  watchdog('tbx_exhibit', $bundle_name . ' JSON processed  in ' . $time_ago . ' ms');
+  watchdog('tbx_json', $bundle_name . ' JSON processed  in ' . $time_ago . ' ms');
 }
 
 /*
@@ -57,7 +57,7 @@ function save_and_backup_exhibit_db ($exhibit_json, $for_item_name, $pretty_prin
 
   if ( @copy ( $exhibit_db_backup, $exhibit_db ) )   {
      $time_ago = time() - $start_time ; // log time 
-     watchdog('tbx_exhibit', $bundle  .': jsondb copied to ' . $exhibit_db);
+     watchdog('tbx_json', $bundle  .': jsondb copied to ' . $exhibit_db);
   } else {
     // possibly write restrictions!!
     throw new Exception($bundle  .': could not copy jsondb to ' . $exhibit_db . ". Check for write access!", 1);
@@ -104,7 +104,7 @@ function exhibit_json($items, $types = NULL, $properties = NULL) {
     if($fp = @fopen($file, 'w')) {
       fputs ($fp, $exhibit_json);
       fclose ($fp);
-      watchdog('tbx_exhibit', 'JSON Db successfully backed up to %1', array('%1' => $file ) , WATCHDOG_INFO);
+      watchdog('tbx_json', 'JSON Db successfully backed up to %1', array('%1' => $file ) , WATCHDOG_INFO);
     } else {
       throw new Exception("Error Open $file for writing", 1);      
     } 
@@ -335,6 +335,14 @@ function indent($json) {
 
     return $result;
 }
+
+
+
+ function _taxo_get_tree_by_name($name) {
+   $voc = taxonomy_vocabulary_machine_name_load($name);   
+   $tree = taxonomy_get_tree($voc->vid); 
+   return $tree;
+ }
 
 
 
