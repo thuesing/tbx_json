@@ -16,22 +16,25 @@
 
 
 function tbx_json_node_insert($node){
-  tbx_json_export_items($node);
+  tbx_json_export_nodes($node);
 }
 
 function tbx_json_node_update($node){
-  tbx_json_export_items($node);
+  tbx_json_export_nodes($node);
 }
 
 function tbx_json_node_delete($node){
-  tbx_json_export_items($node);
+  tbx_json_export_nodes($node);
 }
 
 
 
-/* 
-* Taxonomy Hooks
-*/
+ /* 
+  * Taxonomy Hooks
+  * parse Taxonomies
+  * tbx_json_taxonomy_vocabulary_update($vocabulary)
+  * http://drupalapi.de/api/drupal/drupal%21modules%21taxonomy%21taxonomy.api.php/drupal-7
+  */
 
 // hooks on hierarchy updates !
 function tbx_json_taxonomy_vocabulary_update($voc) { 
@@ -55,15 +58,21 @@ function tbx_json_taxonomy_term_insert($term) {
 
 
 /*
-* clear cache for node and call export scripts
+* clear cache for node and taxos
+* call export scripts for nodes and taxos 
 */
 
 function tbx_json_export_taxos() {
-  watchdog('tbx_json' , 'init parsing taxonomies Json', array() , WATCHDOG_INFO); 
   try {
     // reset cache for vocs
     entity_get_controller('taxonomy_vocabulary')->resetCache();
+    entity_get_controller('taxonomy_term')->resetCache();
     require_once 'parse-taxos.script.php';
+    // reset node cache
+    entity_get_controller('node')->resetCache();
+    require_once 'parse-experts.script.php';
+    require_once 'parse-models.script.php';
+    watchdog('tbx_json' , 'finished parsing taxonomies json', array() , WATCHDOG_INFO); 
   } catch (Exception $e) {
     $msg = $e->getMessage() . ' in '.$e->getFile(). ', line: '. $e->getLine() ;
     watchdog('tbx_json',  $msg , array() , WATCHDOG_ERROR);
@@ -78,7 +87,7 @@ function tbx_json_export_taxos() {
 * clear cache for node and call export scripts
 */
 
-function tbx_json_export_items(&$node) {
+function tbx_json_export_nodes(&$node) {
   try {
       $export_if = array('expert','model');
       if ( in_array($node->type, $export_if)) {
