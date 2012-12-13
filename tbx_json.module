@@ -6,185 +6,6 @@
  *  
  */
 
-/**
- * Implementation of hook_block_info().
- */
-
-function tbx_json_block_info() {
- 
-  $blocks['exhibit-result'] = array(
-    'info' => t('Exhibit result list'),
-    'status' => 1,
-    'region' => 'content',  // Not usually provided.
-  );
-  $blocks['exhibit-facet'] = array(
-    'info' => t('Exhibit facet'),
-    'status' => TRUE, 
-    'region' => 'sidebar_second', // Not usually provided.
-  );
- 
-  return $blocks;
-}
- 
-/**
- * Implementation of hook_block_view().
- */
-
-function tbx_json_block_view($delta='') {
-
-  $path = current_path();
-  $path_alias = drupal_lookup_path('alias',$path);
-  $file_path = 'sites/default/files/';
-
-  $url_map = array( // path => item
-    'content/finding-models' => 'model',
-    'content/finding-experts' => 'expert',
-  );
-  $item = $url_map[$path_alias];
-
-  $block = array();
-
-  switch ($delta) {
-
-    case 'exhibit-result':
-      
-      $data =  array(
-       // 'exhibit_db' => $exhibit_db , 
-        'item' => $item ,
-        'file_path' => $file_path
-        );
-
-
-      $block['subject'] = t('Result list');
-      $block['content'] = array(
-        '#markup' => theme('exhibit_result_list', array('data' => $data)),        
-      );
-
-      break;   
-    case 'exhibit-facet':
-      $block['subject'] = t('Facets');
-      $block['content'] = _sidebar_facet_block_for($item);
-      break;  
- 
-  }
-  return $block;
-}
-
-
- 
-function tbx_json_theme() {    
-
-    return array (
-      'exhibit_facet_block' => array (
-        'template' => 'exhibit-facet-block',
-      ),  
-      'exhibit_result_list' => array (
-        'template' => 'exhibit-result-list',
-        'variables' => array('data' => null),
-       // 'path' => drupal_get_path('module', 'HOOK') . '/templates',
-      ),       
-    );
-
-}
-
- 
-function _sidebar_facet_block_for($item) {
-  $out = "";
-  if($item == 'model') {
-    $out .=  _facet_widget_builder($item,'field_economic_impacts','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_environmental_impacts','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_social_impacts','facet-custom-order');  
-    $out .=  _facet_widget_builder($item,'field_economic_sectors','facet-custom-order');    
-    $out .=  _facet_widget_builder($item,'field_ipr','facet','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_time_horizon','facet','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_spatial_coverage','facet-custom-order');
-    return $out;
-  } elseif ($item == 'expert') {
-    $out .=  _facet_widget_builder($item,'field_economic_impacts','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_environmental_impacts','facet-custom-order');
-    $out .=  _facet_widget_builder($item,'field_social_impacts','facet-custom-order');  
-    $out .=  _facet_widget_builder($item,'field_ia_methods','facet-hierarchical');
-    $out .=  _facet_widget_builder($item,'field_policy_areas','facet-hierarchical');   
-    $out .=  _facet_widget_builder($item,'field_disciplines','facet-custom-order');
-    return $out; 
-  } else {
-    //die("TODO");
-  }
-}
-
-
-function _facet_widget_builder($bundle_name, $field_name, $widget_type) {
-
-  $fields = field_info_instances('node', $bundle_name);
-  if (! array_key_exists($field_name, $fields)) {
-    die("field $field_name not found for bundle $bundle_name");
-  }
-
-  $field = field_info_field($field_name);
-  $label = $fields[$field_name]['label'];
-
-  if ($widget_type == 'facet') {
-
-      $widget = '<div ex:role="facet" 
-                  ex:expression=".%s" 
-                  ex:facetLabel="%s" 
-                  ex:showMissing="true" 
-                  ex:collapsed="true"  
-                  ex:collapsible="true"  
-                  ex:height="20em"></div>';
-
-      return sprintf($widget, $field_name, $label);
-
-  } elseif ($widget_type == 'facet-custom-order') { // order by weight
-
-      $voc = _taxo_get_tree($field['settings']['allowed_values'][0]['vocabulary']);
-      /* Sorry no PHP 5.3. at biohost
-      $order = array_map(function($x) {
-                   return $x->name;
-                }, $voc);
-      */
-      $order = array();
-      foreach ($voc as $x) {
-        $order[] = $x->name;
-      }
-
-
-      $widget = '<div ex:role="facet" 
-                  ex:expression=".%s" 
-                  ex:facetLabel="%s" 
-                  ex:showMissing="true" 
-                  ex:collapsed="true"  
-                  ex:collapsible="true"  
-                  ex:height="20em" 
-                  ex:fixedOrder="%s"></div>';
- 
-      return sprintf($widget, $field_name, $label, implode(';',$order));
-
-  } elseif ($widget_type == 'facet-hierarchical') { // order hierarchically
-
-      $widget = '<div ex:role="facet" 
-                  ex:facetClass="Exhibit.HierarchicalFacet"
-                  ex:expression=".%s" 
-                  ex:facetLabel="%s" 
-                  ex:uniformGrouping=".subtopicOf"
-                  ex:scroll="false"
-                  ex:showMissing="true" 
-                  ex:collapsed="true" 
-                  ex:height="20em"></div>';
- 
-      return sprintf($widget, $field_name, $label);
-
-  }
-                
-
-} 
- 
-
- function _taxo_get_tree($name) {
-   $voc = taxonomy_vocabulary_machine_name_load($name);   
-   $tree = taxonomy_get_tree($voc->vid); 
-   return $tree;
- }
 
 
  /*
@@ -207,6 +28,52 @@ function tbx_json_node_delete($node){
 }
 
 
+
+/* 
+* Taxonomy Hooks
+*/
+
+// hooks on hierarchy updates !
+function tbx_json_taxonomy_vocabulary_update($voc) { 
+  watchdog('tbx_json' , 'taxo %1 has been updated', array('%1' => $voc->machine_name ) , WATCHDOG_INFO); 
+  tbx_json_export_taxos();
+}
+
+// term hooks
+function tbx_json_taxonomy_term_delete($term) {
+  watchdog('tbx_json' , 'term %1 has been deleted', array('%1' => $term->name ) , WATCHDOG_INFO); 
+  tbx_json_export_taxos();
+}
+function tbx_json_taxonomy_term_update($term) {
+   watchdog('tbx_json' , 'term %1 has been updated', array('%1' => $term->name ) , WATCHDOG_INFO);
+   tbx_json_export_taxos();
+}
+function tbx_json_taxonomy_term_insert($term) {
+   watchdog('tbx_json' , 'term %1 has been inserted', array('%1' => $term->name ) , WATCHDOG_INFO); 
+   tbx_json_export_taxos();
+}
+
+
+/*
+* clear cache for node and call export scripts
+*/
+
+function tbx_json_export_taxos() {
+  watchdog('tbx_json' , 'init parsing taxonomies Json', array() , WATCHDOG_INFO); 
+  try {
+    // reset cache for vocs
+    entity_get_controller('taxonomy_vocabulary')->resetCache();
+    require_once 'parse-taxos.script.php';
+  } catch (Exception $e) {
+    $msg = $e->getMessage() . ' in '.$e->getFile(). ', line: '. $e->getLine() ;
+    watchdog('tbx_json',  $msg , array() , WATCHDOG_ERROR);
+    $site_email = variable_get('site_mail', ini_get('sendmail_from'));
+    tbx_drupal_mail($site_email, $site_email, 'Tbx Error notification', $msg);
+  }
+
+}
+
+
 /*
 * clear cache for node and call export scripts
 */
@@ -226,57 +93,6 @@ function tbx_json_export_items(&$node) {
               require_once 'parse-models.script.php';
             }
       }
-
-  } catch (Exception $e) {
-    $msg = $e->getMessage() . ' in '.$e->getFile(). ', line: '. $e->getLine() ;
-    watchdog('tbx_json',  $msg , array() , WATCHDOG_ERROR);
-    $site_email = variable_get('site_mail', ini_get('sendmail_from'));
-    tbx_drupal_mail($site_email, $site_email, 'Tbx Error notification', $msg);
-  }
-
-}
-
-function tbx_json_taxonomy_term_update($term) {
-      watchdog('tbx_json' , 'term %1 in taxo %2 has changed', array('%1' =>  $term->name , '%2' => $voc->machine_name ) , WATCHDOG_INFO); 
-}
-
-function tbx_json_taxonomy_vocabulary_update($voc) {
-      watchdog('tbx_json' , 'taxo %2 has changed', array('%2' => $voc->machine_name ) , WATCHDOG_INFO); 
-}
-
-/* parse Taxonomies
-tbx_json_taxonomy_vocabulary_update($vocabulary)
-http://drupalapi.de/api/drupal/drupal%21modules%21taxonomy%21taxonomy.api.php/drupal-7
-
-
-
-function tbx_json_taxonomy_term_delete($term) {
-  tbx_json_export_taxo($term);
-}
-function tbx_json_taxonomy_term_update($term) {
-  tbx_json_export_taxo($term);
-}
-function tbx_json_taxonomy_term_insert($term) {
-  tbx_json_export_taxo($term);
-}
-
-function tbx_json_taxonomy_vocabulary_update($vocabulary) {
-      watchdog('tbx_json' , 'taxo %2 has changed', array('%2' => $nvoc->machine_name ) , WATCHDOG_INFO); 
-}
-*/
-/*
-* clear cache for node and call export scripts
-*/
-
-function tbx_json_export_taxo(&$term) {
-
-
-  try {
-  // reset cache for vocs
-    $voc = taxonomy_vocabulary_load($term->vid);
-    watchdog('tbx_json' , 'term %1 in taxo %2 has changed', array('%1' =>  $term->name , '%2' => $voc->machine_name ) , WATCHDOG_INFO); 
-    entity_get_controller('taxonomy_vocabulary')->resetCache();
-    //require_once 'parse-taxos.script.php';
 
   } catch (Exception $e) {
     $msg = $e->getMessage() . ' in '.$e->getFile(). ', line: '. $e->getLine() ;
