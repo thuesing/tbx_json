@@ -1,0 +1,6 @@
+name = Tbx json
+description = TODO: Description of module
+core = 7.x
+files[] = tbx_json.module
+
+
