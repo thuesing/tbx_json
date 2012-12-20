@@ -1,4 +1,6 @@
 <?php
+require_once 'exhibit-json-parser.inc.php';
+require_once 'exhibit-taxo-parser.inc.php';
 /**
  * @file
  * Module file for tbx_json.
@@ -6,6 +8,99 @@
  *  
  */
 
+function tbx_json_menu(){
+    $items['json/%'] = array(
+      'title' => 'Some callback',
+      'description' => 'Will call callback_function',
+      'page callback' => 'tbx_json_callback_function',
+      'page arguments' => array(1),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+   );
+
+
+
+return $items;
+}
+
+function tbx_json_callback_function($arg){
+  // drupal_json_output manages your content-type header
+  // and the json_encode for you.
+
+  //print_r($arg);
+  $exhibit_json = null;
+
+
+  if ($arg == 'models') {
+
+       $exhibit_types  = array(
+          'model' => array( 
+            'pluralLabel' => 'models'
+            )
+        );
+
+      $properties = array(
+       'author'     => array('valueType' => 'item'),
+       'created'    => array('valueType' => 'date'),
+       'changed'    => array('valueType' => 'date'),
+       'url'        => array('valueType' => 'url'),
+      );
+
+      $start_time = time();
+      $nodes = exhibit_get_nodes('model');  // Drupal
+      $items = exhibit_items_for($nodes); // Exhibit
+      $exhibit_json = exhibit_json($items, $exhibit_types, $properties);
+      $time_ago =  time() - $start_time ; // log time
+      watchdog('tbx_json', $arg . ' json processed  in ' . $time_ago . ' ms');
+
+
+  } elseif ($arg == 'experts') {
+
+      $exhibit_types  = array(
+          'expert' => array( 
+            'pluralLabel' => 'experts'
+            )
+        );
+
+      $properties = array(
+       'author'     => array('valueType' => 'item'),
+       'created'    => array('valueType' => 'date'),
+       'changed'    => array('valueType' => 'date'),
+       'url'        => array('valueType' => 'url'),
+      );
+
+      $start_time = time();
+      $nodes = exhibit_get_nodes('expert');  // Drupal
+      $items = exhibit_items_for($nodes); // Exhibit
+      $exhibit_json = exhibit_json($items, $exhibit_types, $properties);
+      $time_ago =  time() - $start_time ; // log time
+      watchdog('tbx_json', $arg . ' json processed  in ' . $time_ago . ' ms');
+
+  } elseif ($arg == 'taxonomies') {
+
+        $bundles = array('model','expert'); // parse taxos for
+        $vocab_names = array();
+
+        foreach ($bundles as $bundle) {
+          $vocab_names = array_merge(_taxo_names_for_bundle($bundle), $vocab_names);
+        }
+        $vocab_names = array_unique($vocab_names);
+        /* 
+        * items for taxos
+        */
+        $items = array(); 
+        foreach($vocab_names as &$vname) :
+          $items = array_merge(_items_for_taxo($vname), $items);
+        endforeach;
+        // print to file
+
+        $exhibit_json = exhibit_json($items, null, null);
+
+  }
+
+
+  drupal_json_output($exhibit_json);
+}
 
 
  /*
