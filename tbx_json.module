@@ -72,6 +72,7 @@ function tbx_json_export_taxos() {
     entity_get_controller('node')->resetCache();
     require_once 'parse-experts.script.php';
     require_once 'parse-models.script.php';
+    require_once 'parse-practices.script.php';
     watchdog('tbx_json' , 'finished parsing taxonomies json', array() , WATCHDOG_INFO); 
   } catch (Exception $e) {
     $msg = $e->getMessage() . ' in '.$e->getFile(). ', line: '. $e->getLine() ;
@@ -89,7 +90,7 @@ function tbx_json_export_taxos() {
 
 function tbx_json_export_nodes(&$node) {
   try {
-      $export_if = array('expert','model');
+      $export_if = array('expert','model', 'practice');
       if ( in_array($node->type, $export_if)) {
 
             watchdog('tbx_json' , 'node %1 of type %2 has changed', array('%1' =>  $node->title , '%2' => $node->type ) , WATCHDOG_INFO);
@@ -100,6 +101,8 @@ function tbx_json_export_nodes(&$node) {
               require_once 'parse-experts.script.php';
             } else if ($node->type == 'model') {
               require_once 'parse-models.script.php';
+            } else if ($node->type == 'practice') {
+              require_once 'parse-practices.script.php';
             }
       }
 
