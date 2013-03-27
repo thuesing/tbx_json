@@ -10,20 +10,22 @@ error_reporting(E_ALL);
 // TODO types and properties 
 // refactor , see call from script, wie sollen die types and props uebergeben werden
 
-function exhibit_parse_bundle($bundle_name, $exhibit_types, $pretty_print = FALSE) {
+function exhibit_parse_bundle($bundle_name, $exhibit_types, $properties) {
   $start_time = time();
   $nodes = exhibit_get_nodes($bundle_name);  // Drupal
   $items = exhibit_items_for($nodes); // Exhibit
 
   // parse json
-  $exhibit_json = exhibit_json($items, $exhibit_types, $properties);
+  $json = exhibit_json($items, $exhibit_types, $properties);
 
   // print to file, backup, log
-  save_and_backup_exhibit_db ($exhibit_json, $bundle_name , $pretty_print) ;
+   #save_and_backup_exhibit_db ($exhibit_json, $bundle_name , $pretty_print) ;
   // wd logger
-  $time_ago =  time() - $start_time ; // log time
+  #$time_ago =  time() - $start_time ; // log time
   // TODO refactor log msg see 51, 58
-  watchdog('tbx_json', $bundle_name . ' JSON processed  in ' . $time_ago . ' ms');
+  #watchdog('tbx_json', $bundle_name . ' JSON processed  in ' . $time_ago . ' ms');
+
+  return $json;
 }
 
 /*

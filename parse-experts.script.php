@@ -27,7 +27,9 @@ $properties = array(
 
 $pretty_print = TRUE;
 
-exhibit_parse_bundle($bundle, $exhibit_types, $pretty_print );
+$json = exhibit_parse_bundle($bundle, $exhibit_types, $properties);
+
+save_and_backup_exhibit_db ($json, $bundle , $pretty_print) ;
 
 
 
