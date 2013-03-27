@@ -5,7 +5,9 @@
  * Parse JSON for Tbx.
  *  
  */
-
+error_reporting(E_ALL);
+require_once 'exhibit-json-parser.inc.php';
+require_once 'exhibit-taxo-parser.inc.php';
 
 
  /*
@@ -150,3 +152,57 @@ function tbx_drupal_mail($from = 'default_from', $to, $subject, $message) {
 }
 
 
+/*
+ * Json menu
+ */
+
+
+function tbx_json_menu() {
+  $items = array();
+      $items['json/%'] = array(
+      'title' => 'Facet Browser',
+      'description' => t('Toolbox Exhibit Faceted Views'),
+      'page callback' => 'tbx_json_menu_callback',
+      'page arguments' => array(1),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+ 
+  );
+ 
+  return $items;
+}
+ 
+ 
+function tbx_json_menu_callback($args){
+  if($args == 'practices') {
+      $json = tbx_json_parse_practices() ;
+      // We are returning JSON, so tell the browser.
+      drupal_add_http_header('Content-Type', 'application/json');
+      echo $json;
+  } else {
+    echo "endpoint not implemented\n";
+  }
+} 
+
+
+
+function tbx_json_parse_practices() {
+
+    $bundle = 'practice';
+    $exhibit_types  = array(
+        'practice' => array( 
+          'pluralLabel' => 'practices'
+          )
+      );
+
+    $properties = array(
+     'author'     => array('valueType' => 'item'),
+     'created'    => array('valueType' => 'date'),
+     'changed'    => array('valueType' => 'date'),
+     'url'        => array('valueType' => 'url'),
+    );
+
+    $json = exhibit_parse_bundle($bundle, $exhibit_types, $properties);
+    #save_and_backup_exhibit_db ($json, $bundle , $pretty_print) ;
+    return $json;
+}
