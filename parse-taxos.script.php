@@ -29,7 +29,7 @@ endforeach;
 
 $exhibit_json = exhibit_json($items, null, null);
 
-save_and_backup_exhibit_db ($exhibit_json, $for_item_name, $pretty_print = FALSE);
+save_and_backup_exhibit_db ($exhibit_json, $for_item_name, $pretty_print = true);
 
 
 
