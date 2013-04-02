@@ -184,7 +184,7 @@ function exhibit_get_item($node) {
     
     if ($type == 'text') {
        $field_value = $field_items[0]['value'];
-       $field_value = utf8_encode ( $field_value );     //  http://www.php.net/manual/de/function.utf8-encode.php
+       #$field_value = utf8_encode ( $field_value );     //  http://www.php.net/manual/de/function.utf8-encode.php
        $row[$field_name] = $field_value;  
     } elseif(($type == 'list')) { // boolean
        $field_value = ($field_items[0]['value'] == 0) ? 'yes' : 'no';
