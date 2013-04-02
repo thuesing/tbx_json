@@ -204,9 +204,9 @@ function exhibit_get_item($node) {
           }        
         endforeach;
         
-        if(sizeof($res) == 1) { // json output as value
+        if(sizeof($field_value) == 1) { // json output as value
           $row[$field_name] = $field_value[0];
-        } elseif(sizeof($res) > 1) { // output as array
+        } elseif(sizeof($field_value) > 1) { // output as array
           $row[$field_name] = $field_value;
         }
 
