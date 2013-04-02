@@ -1,7 +1,7 @@
  <?php
  
 error_reporting(E_ALL);
-
+define('EXHIBIT_DATE_FORMAT', '%Y-%m-%d %H:%M:%S');
 /*
  * Simile JSON output parser
  *
@@ -151,8 +151,6 @@ function exhibit_get_nodes_d6($for_type) {
 // D7 query 
 function exhibit_get_item($node) {
 
-  define('EXHIBIT_DATE_FORMAT', '%Y-%m-%d %H:%M:%S');
-  
   $node_field_names = _get_field_names_for($node->type);  
 
   $row = array(); // for JSON
