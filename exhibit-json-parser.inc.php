@@ -185,7 +185,7 @@ function exhibit_get_item($node) {
        #$field_value = utf8_encode ( $field_value );     //  http://www.php.net/manual/de/function.utf8-encode.php
        $row[$field_name] = $field_value;  
     } elseif(($type == 'list')) { // boolean
-       $field_value = ($field_items[0]['value'] == 0) ? 'yes' : 'no';
+       $field_value = ($field_items[0]['value'] == 1) ? 'yes' : 'no';
        $row[$field_name] = $field_value;
     } elseif(($type == 'taxonomy')) { 
       // parse terms
