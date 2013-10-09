@@ -36,16 +36,30 @@ function _items_for_taxo($taxo_machine_name){
 	$items = array();
 
 	foreach ($tree as $term) {
+	  $item = array();
+      #
+      $item['id'] = $term->tid;
+	  $item['id'] = $term->name;
+      #$item['label'] = $term->name ;
+	  $item['type'] = $voc->machine_name;
+	    // TODO use URI as id
+	    #
+	    #$item['id'] = url('taxonomy/term/'. $term->tid);
+	    #$item['id'] = $term->name . '('. $voc->machine_name .')';
+
+
 	  foreach ($term->parents as $parent_id) {
-	  	if($parent_id == 0) continue; // root item
-	  	$parent = $tree[$parent_id];
-	    $item = array();
-	    $item['type'] = $voc->machine_name;
-	    $item['label'] = $term->name;
-	    $item['subtopicOf'] = $parent->name;
-	    if(empty($item['subtopicOf'])) unset($item['subtopicOf']); 
-	    $items[] = $item;
+ 
+	    if($parent_id != 0) { // child item
+	  		$parent = $tree[$parent_id];
+	  		$item['subtopicOf'] = $parent->name;
+	    	#$item['subtopicOf'] = $parent->tid;	        
+	    	#$item['subtopicOf'] = url('taxonomy/term/'. $parent->tid);
+	    	#$item['subtopicOf'] = $parent->name . '('. $voc->machine_name .')';
+        }
+	    #if(empty($item['subtopicOf'])) unset($item['subtopicOf']); 
 	  }
+	  $items[] = $item;
 	}  
 
 	return $items;

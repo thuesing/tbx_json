@@ -26,8 +26,14 @@ foreach($vocab_names as &$vname) :
 endforeach;
 
 // print to file
+// exhibit_json(items, types, properties)
 
-$exhibit_json = exhibit_json($items, null, null);
+$properties = array(
+	'id' => array('valueType' => 'item'),
+	'subtopicOf' => array('valueType' => 'item')
+);
+
+$exhibit_json = exhibit_json($items, null, $properties);
 
 save_and_backup_exhibit_db ($exhibit_json, $for_item_name, $pretty_print = true);
 
