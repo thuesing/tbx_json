@@ -24,6 +24,7 @@ function _taxo_names_for_bundle($bundle_name, $entity_type = 'node') {
 
 }
 
+
 /*
  * @return array of hierarchical term items in simile exhibit format
  */
@@ -40,7 +41,7 @@ function _items_for_taxo($taxo_machine_name){
       #
       $item['id'] = $term->tid;
 	  $item['id'] = $term->name;
-      #$item['label'] = $term->name ;
+      $item['label'] = $term->name ;
 	  $item['type'] = $voc->machine_name;
 	    // TODO use URI as id
 	    #
